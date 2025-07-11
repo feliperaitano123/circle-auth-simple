@@ -18,7 +18,7 @@ export const config = {
     url: process.env.APP_URL || 'http://localhost:3000'
   },
   kv: {
-    url: process.env.KV_URL,
+    url: process.env.KV_REST_API_URL,
     token: process.env.KV_REST_API_TOKEN
   },
   codes: {
