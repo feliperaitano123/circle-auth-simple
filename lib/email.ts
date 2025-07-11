@@ -124,9 +124,6 @@ Se você não solicitou este código, ignore este email.
 ${config.email.fromName}
     `;
 
-    console.log('Sending email from:', `${config.email.fromName} <${config.email.fromEmail}>`);
-    console.log('Sending email to:', to);
-    
     const result = await resend.emails.send({
       from: `${config.email.fromName} <${config.email.fromEmail}>`,
       to: [to],
@@ -134,8 +131,6 @@ ${config.email.fromName}
       html,
       text
     });
-
-    console.log('Resend result:', JSON.stringify(result, null, 2));
     return result.error === null;
   } catch (error) {
     console.error('Email send error:', error);

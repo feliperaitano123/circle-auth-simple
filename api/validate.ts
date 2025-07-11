@@ -43,10 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     const code = Storage.generateCode();
-    console.log('🔍 DEBUG - Generated code:', code, 'for email:', normalizedEmail);
-    
     await Storage.storeCode(normalizedEmail, code, member.id);
-    console.log('✅ DEBUG - Code stored successfully');
 
     const emailSent = await sendVerificationEmail({
       to: normalizedEmail,
