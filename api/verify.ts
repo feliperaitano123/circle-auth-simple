@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyCode } from '../lib/codes';
+import { Storage } from '../lib/storage';
 import { generateToken } from '../lib/tokens';
 import { config } from '../lib/config';
 
@@ -17,19 +17,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
 
   try {
-    const codeData = await verifyCode(email.toLowerCase().trim(), code.trim());
+    const normalizedEmail = email.toLowerCase().trim();
+    const trimmedCode = code.trim();
 
-    if (!codeData) {
+    const storedData = await Storage.getCode(normalizedEmail);
+    
+    if (!storedData) {
       res.status(401).json({ 
         error: 'Código inválido ou expirado' 
       });
       return;
     }
 
+    if (storedData.code !== trimmedCode) {
+      const attempts = await Storage.incrementAttempts(normalizedEmail);
+      
+      if (attempts >= config.codes.maxAttempts) {
+        res.status(429).json({ 
+          error: 'Muitas tentativas incorretas. Solicite um novo código.' 
+        });
+        return;
+      }
+      
+      res.status(401).json({ 
+        error: `Código incorreto. ${config.codes.maxAttempts - attempts} tentativas restantes.`
+      });
+      return;
+    }
+
+    await Storage.deleteCode(normalizedEmail);
+
     const token = generateToken({
-      memberId: codeData.memberId,
-      email: codeData.email,
-      name: codeData.memberName,
+      memberId: storedData.memberId,
+      email: storedData.email,
+      name: 'Member',
       communityUrl: config.circle.communityUrl
     });
 
@@ -42,13 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   } catch (error: any) {
     console.error('Verify error:', error);
     
-    if (error.message?.includes('bloqueado')) {
-      res.status(429).json({ 
-        error: error.message 
-      });
-      return;
-    }
-
     res.status(500).json({ 
       error: 'Erro ao verificar código' 
     });

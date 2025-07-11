@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyCircleMember } from '../lib/circle';
-import { saveCode, checkRateLimit } from '../lib/codes';
+import { Storage } from '../lib/storage';
 import { sendVerificationEmail } from '../lib/email';
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
@@ -25,10 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
 
   try {
-    const canProceed = await checkRateLimit(normalizedEmail);
-    if (!canProceed) {
+    const isRateLimited = await Storage.isRateLimited(normalizedEmail);
+    if (isRateLimited) {
       res.status(429).json({ 
-        error: 'Muitas tentativas. Tente novamente em 1 hora.' 
+        error: 'Muitas tentativas. Tente novamente em 10 minutos.' 
       });
       return;
     }
@@ -42,7 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       return;
     }
 
-    const code = await saveCode(normalizedEmail, member.id, member.name);
+    const code = Storage.generateCode();
+    await Storage.storeCode(normalizedEmail, code, member.id);
 
     const emailSent = await sendVerificationEmail({
       to: normalizedEmail,
