@@ -19,14 +19,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   try {
     const normalizedEmail = email.toLowerCase().trim();
     const trimmedCode = code.trim();
-    
-    console.log('🔍 DEBUG Verify - Email:', normalizedEmail, 'Code:', trimmedCode);
 
     const storedData = await Storage.getCode(normalizedEmail);
-    console.log('🔍 DEBUG Verify - Stored data:', storedData);
     
     if (!storedData) {
-      console.log('❌ DEBUG Verify - No stored data found');
       res.status(401).json({ 
         error: 'Código inválido ou expirado' 
       });
@@ -34,7 +30,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     if (storedData.code !== trimmedCode) {
-      console.log('❌ DEBUG Verify - Code mismatch. Stored:', storedData.code, 'Received:', trimmedCode);
       const attempts = await Storage.incrementAttempts(normalizedEmail);
       
       if (attempts >= config.codes.maxAttempts) {
@@ -50,30 +45,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       return;
     }
 
-    console.log('✅ DEBUG Verify - Code matches! Generating token...');
     await Storage.deleteCode(normalizedEmail);
 
-    try {
-      const token = generateToken({
-        memberId: storedData.memberId,
-        email: storedData.email,
-        name: 'Member',
-        communityUrl: config.circle.communityUrl
-      });
+    const token = generateToken({
+      memberId: storedData.memberId,
+      email: storedData.email,
+      name: 'Member',
+      communityUrl: config.circle.communityUrl
+    });
 
-      console.log('✅ DEBUG Verify - Token generated successfully');
-      res.status(200).json({
-        success: true,
-        token,
-        expiresIn: config.jwt.expiresIn
-      });
-    } catch (tokenError) {
-      console.error('❌ DEBUG Verify - Token generation failed:', tokenError);
-      throw tokenError;
-    }
+    res.status(200).json({
+      success: true,
+      token,
+      expiresIn: config.jwt.expiresIn
+    });
 
   } catch (error: any) {
-    console.error('Verify error:', error);
+    console.error('Verify error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
     res.status(500).json({ 
       error: 'Erro ao verificar código' 
