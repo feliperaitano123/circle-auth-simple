@@ -10,8 +10,7 @@ const config_1 = require("./config");
 function generateToken(payload) {
     return jsonwebtoken_1.default.sign({
         ...payload,
-        iat: Math.floor(Date.now() / 1000),
-        iss: config_1.config.app.name
+        iat: Math.floor(Date.now() / 1000)
     }, config_1.config.jwt.secret, {
         expiresIn: config_1.config.jwt.expiresIn,
         audience: 'mcp-client',

@@ -12,8 +12,7 @@ export function generateToken(payload: TokenPayload): string {
   return jwt.sign(
     {
       ...payload,
-      iat: Math.floor(Date.now() / 1000),
-      iss: config.app.name
+      iat: Math.floor(Date.now() / 1000)
     },
     config.jwt.secret,
     {
