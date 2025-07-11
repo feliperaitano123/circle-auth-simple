@@ -21,7 +21,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     normalizedEmail: email.toLowerCase().trim(),
     receivedCode: code,
     trimmedCode: code.trim(),
-    codeLength: code.trim().length
+    codeLength: code.trim().length,
+    envVars: {
+      hasKvUrl: !!process.env.KV_REST_API_URL,
+      hasKvToken: !!process.env.KV_REST_API_TOKEN,
+      kvUrlStart: process.env.KV_REST_API_URL?.substring(0, 30) || 'not found'
+    }
   };
 
   try {
