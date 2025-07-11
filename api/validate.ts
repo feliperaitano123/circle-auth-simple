@@ -43,8 +43,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     const code = Storage.generateCode();
+    console.log('Generated code for:', normalizedEmail, 'Code:', code);
+    
     await Storage.storeCode(normalizedEmail, code, member.id);
+    console.log('Code stored successfully');
 
+    console.log('Sending verification email to:', normalizedEmail);
     const emailSent = await sendVerificationEmail({
       to: normalizedEmail,
       code,
@@ -64,8 +68,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       expiresIn: 600
     });
 
-  } catch (error) {
-    console.error('Validation error:', error);
+  } catch (error: any) {
+    console.error('Validation error:', {
+      message: error.message,
+      stack: error.stack,
+      email: email?.toLowerCase()?.trim()
+    });
     res.status(500).json({ 
       error: 'Erro interno. Tente novamente.' 
     });

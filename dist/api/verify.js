@@ -17,14 +17,27 @@ async function handler(req, res) {
     try {
         const normalizedEmail = email.toLowerCase().trim();
         const trimmedCode = code.trim();
+        console.log('Verify attempt:', { email: normalizedEmail, codeLength: trimmedCode.length });
         const storedData = await storage_1.Storage.getCode(normalizedEmail);
         if (!storedData) {
+            console.log('No stored data found for email:', normalizedEmail);
             res.status(401).json({
                 error: 'Código inválido ou expirado'
             });
             return;
         }
+        console.log('Stored data found:', {
+            email: storedData.email,
+            hasCode: !!storedData.code,
+            attempts: storedData.attempts,
+            expiresAt: new Date(storedData.expiresAt).toISOString()
+        });
         if (storedData.code !== trimmedCode) {
+            console.log('Code mismatch:', {
+                provided: trimmedCode,
+                expected: storedData.code,
+                match: storedData.code === trimmedCode
+            });
             const attempts = await storage_1.Storage.incrementAttempts(normalizedEmail);
             if (attempts >= config_1.config.codes.maxAttempts) {
                 res.status(429).json({
@@ -37,6 +50,7 @@ async function handler(req, res) {
             });
             return;
         }
+        console.log('Code verified successfully, generating token');
         await storage_1.Storage.deleteCode(normalizedEmail);
         const token = (0, tokens_1.generateToken)({
             memberId: storedData.memberId,
@@ -51,7 +65,12 @@ async function handler(req, res) {
         });
     }
     catch (error) {
-        console.error('Verify error:', error);
+        console.error('Verify error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            email: email?.toLowerCase()?.trim()
+        });
         res.status(500).json({
             error: 'Erro ao verificar código'
         });

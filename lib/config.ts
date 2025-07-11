@@ -28,7 +28,8 @@ export function validateConfig() {
   const required = [
     'CIRCLE_API_TOKEN',
     'RESEND_API_KEY',
-    'JWT_SECRET'
+    'JWT_SECRET',
+    'REDIS_URL'
   ];
 
   const missing = required.filter(key => !process.env[key]);

@@ -36,7 +36,10 @@ async function handler(req, res) {
             return;
         }
         const code = storage_1.Storage.generateCode();
+        console.log('Generated code for:', normalizedEmail, 'Code:', code);
         await storage_1.Storage.storeCode(normalizedEmail, code, member.id);
+        console.log('Code stored successfully');
+        console.log('Sending verification email to:', normalizedEmail);
         const emailSent = await (0, email_1.sendVerificationEmail)({
             to: normalizedEmail,
             code,
@@ -55,7 +58,11 @@ async function handler(req, res) {
         });
     }
     catch (error) {
-        console.error('Validation error:', error);
+        console.error('Validation error:', {
+            message: error.message,
+            stack: error.stack,
+            email: email?.toLowerCase()?.trim()
+        });
         res.status(500).json({
             error: 'Erro interno. Tente novamente.'
         });

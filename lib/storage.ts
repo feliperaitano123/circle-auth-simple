@@ -5,12 +5,27 @@ let redisClient: any = null;
 
 async function getRedisClient() {
   if (!redisClient) {
-    redisClient = createClient({
-      url: process.env.REDIS_URL
-    });
+    if (!process.env.REDIS_URL) {
+      throw new Error('REDIS_URL is not configured');
+    }
     
-    redisClient.on('error', (err: any) => console.log('Redis Client Error', err));
-    await redisClient.connect();
+    try {
+      redisClient = createClient({
+        url: process.env.REDIS_URL
+      });
+      
+      redisClient.on('error', (err: any) => {
+        console.error('Redis Client Error:', err);
+        redisClient = null;
+      });
+      
+      await redisClient.connect();
+      console.log('Redis connected successfully');
+    } catch (error) {
+      console.error('Failed to connect to Redis:', error);
+      redisClient = null;
+      throw new Error('Failed to connect to Redis');
+    }
   }
   return redisClient;
 }
@@ -30,8 +45,10 @@ export class Storage {
   }
 
   static async storeCode(email: string, code: string, memberId: number): Promise<void> {
+    console.log('Storage.storeCode called:', { email, code, memberId });
     const redis = await getRedisClient();
     const key = this.getCodeKey(email);
+    console.log('Storage key:', key);
     const expiresAt = Date.now() + (config.codes.expireMinutes * 60 * 1000);
     
     const verificationData: VerificationCode = {
@@ -45,25 +62,33 @@ export class Storage {
 
     // Store with TTL in seconds
     const ttlSeconds = config.codes.expireMinutes * 60;
+    console.log('Storing verification data:', verificationData);
     await redis.setEx(key, ttlSeconds, JSON.stringify(verificationData));
+    console.log('Code stored successfully with TTL:', ttlSeconds, 'seconds');
   }
 
   static async getCode(email: string): Promise<VerificationCode | null> {
+    console.log('Storage.getCode called for:', email);
     const redis = await getRedisClient();
     const key = this.getCodeKey(email);
+    console.log('Looking for key:', key);
     const data = await redis.get(key);
     
     if (!data) {
+      console.log('No data found for key:', key);
       return null;
     }
+    console.log('Found data for key:', key);
 
     const verificationData = JSON.parse(data as string) as VerificationCode;
     
     // Check if expired
     if (Date.now() > verificationData.expiresAt) {
+      console.log('Code expired for:', email, 'Expired at:', new Date(verificationData.expiresAt));
       await this.deleteCode(email);
       return null;
     }
+    console.log('Code is valid, returning data');
 
     return verificationData;
   }
@@ -117,5 +142,17 @@ export class Storage {
     }
     
     return code;
+  }
+
+  static async debugListKeys(): Promise<string[]> {
+    try {
+      const redis = await getRedisClient();
+      const keys = await redis.keys('verification:*');
+      console.log('Debug - All verification keys:', keys);
+      return keys;
+    } catch (error) {
+      console.error('Debug - Error listing keys:', error);
+      return [];
+    }
   }
 }
