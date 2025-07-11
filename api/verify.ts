@@ -19,10 +19,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   try {
     const normalizedEmail = email.toLowerCase().trim();
     const trimmedCode = code.trim();
+    
+    console.log('🔍 DEBUG Verify - Email:', normalizedEmail, 'Code:', trimmedCode);
 
     const storedData = await Storage.getCode(normalizedEmail);
+    console.log('🔍 DEBUG Verify - Stored data:', storedData);
     
     if (!storedData) {
+      console.log('❌ DEBUG Verify - No stored data found');
       res.status(401).json({ 
         error: 'Código inválido ou expirado' 
       });
