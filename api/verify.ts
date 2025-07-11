@@ -34,6 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     if (storedData.code !== trimmedCode) {
+      console.log('❌ DEBUG Verify - Code mismatch. Stored:', storedData.code, 'Received:', trimmedCode);
       const attempts = await Storage.incrementAttempts(normalizedEmail);
       
       if (attempts >= config.codes.maxAttempts) {
@@ -49,6 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       return;
     }
 
+    console.log('✅ DEBUG Verify - Code matches! Generating token...');
     await Storage.deleteCode(normalizedEmail);
 
     const token = generateToken({
@@ -58,6 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       communityUrl: config.circle.communityUrl
     });
 
+    console.log('✅ DEBUG Verify - Token generated successfully');
     res.status(200).json({
       success: true,
       token,
