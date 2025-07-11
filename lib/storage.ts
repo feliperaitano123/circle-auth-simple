@@ -1,5 +1,8 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { config } from './config';
+
+// Initialize Redis from environment variables
+const redis = Redis.fromEnv();
 
 export interface VerificationCode {
   code: string;
@@ -36,7 +39,7 @@ export class Storage {
     const ttlSeconds = config.codes.expireMinutes * 60;
     console.log('Storing verification data:', verificationData);
     
-    await kv.set(key, verificationData, { ex: ttlSeconds });
+    await redis.set(key, verificationData, { ex: ttlSeconds });
     console.log('Code stored successfully with TTL:', ttlSeconds, 'seconds');
   }
 
@@ -46,7 +49,7 @@ export class Storage {
     const key = this.getCodeKey(email);
     console.log('Looking for key:', key);
     
-    const data = await kv.get(key) as VerificationCode | null;
+    const data = await redis.get(key) as VerificationCode | null;
     
     if (!data) {
       console.log('No data found for key:', key);
@@ -83,14 +86,14 @@ export class Storage {
     const remainingTtl = Math.max(0, Math.floor((verificationData.expiresAt - Date.now()) / 1000));
     const key = this.getCodeKey(email);
     
-    await kv.set(key, verificationData, { ex: remainingTtl });
+    await redis.set(key, verificationData, { ex: remainingTtl });
     
     return verificationData.attempts;
   }
 
   static async deleteCode(email: string): Promise<void> {
     const key = this.getCodeKey(email);
-    await kv.del(key);
+    await redis.del(key);
   }
 
   static async isRateLimited(email: string): Promise<boolean> {
@@ -117,7 +120,7 @@ export class Storage {
 
   static async debugListKeys(): Promise<string[]> {
     try {
-      const keys = await kv.keys('verification:*');
+      const keys = await redis.keys('verification:*');
       console.log('Debug - All verification keys:', keys);
       return keys;
     } catch (error) {

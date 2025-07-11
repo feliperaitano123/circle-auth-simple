@@ -1,5 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   if (req.method !== 'GET') {
@@ -18,18 +20,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     
     // Test write operation
     const testKey = 'debug:test';
-    await kv.set(testKey, 'working', { ex: 60 });
-    const testValue = await kv.get(testKey);
+    await redis.set(testKey, 'working', { ex: 60 });
+    const testValue = await redis.get(testKey);
     debugInfo.testWrite = testValue === 'working';
     
     // List verification keys
-    const keys = await kv.keys('verification:*');
+    const keys = await redis.keys('verification:*');
     debugInfo.verificationKeys = keys.length;
     
     // If there are keys, get a sample
     if (keys.length > 0) {
       const sampleKey = keys[0];
-      const sampleData = await kv.get(sampleKey);
+      const sampleData = await redis.get(sampleKey);
       if (sampleData) {
         debugInfo.sampleVerification = {
           key: sampleKey,
@@ -43,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
     
     // Clean up test key
-    await kv.del(testKey);
+    await redis.del(testKey);
     
     res.status(200).json({
       success: true,
