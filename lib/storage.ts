@@ -30,7 +30,7 @@ export class Storage {
 
     // Store with TTL in seconds
     const ttlSeconds = config.codes.expireMinutes * 60;
-    await kv.setex(key, ttlSeconds, JSON.stringify(verificationData));
+    await kv.set(key, JSON.stringify(verificationData), { ex: ttlSeconds });
   }
 
   static async getCode(email: string): Promise<VerificationCode | null> {
@@ -69,7 +69,7 @@ export class Storage {
     // Update with remaining TTL
     const remainingTtl = Math.max(0, Math.floor((verificationData.expiresAt - Date.now()) / 1000));
     const key = this.getCodeKey(email);
-    await kv.setex(key, remainingTtl, JSON.stringify(verificationData));
+    await kv.set(key, JSON.stringify(verificationData), { ex: remainingTtl });
     
     return verificationData.attempts;
   }
