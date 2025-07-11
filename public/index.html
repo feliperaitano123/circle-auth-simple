@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação Circle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Step 1: Email -->
+        <div id="step-email" class="step active">
+            <div class="logo">🔐</div>
+            <h1>Autenticação Circle</h1>
+            <p>Digite o email usado na comunidade Circle</p>
+            
+            <form id="email-form">
+                <input 
+                    type="email" 
+                    id="email-input" 
+                    placeholder="seu@email.com"
+                    required
+                    autocomplete="email"
+                >
+                <button type="submit" id="send-code-btn">
+                    Enviar código
+                </button>
+            </form>
+            
+            <div class="error" id="email-error"></div>
+        </div>
+
+        <!-- Step 2: Code -->
+        <div id="step-code" class="step">
+            <div class="logo">📧</div>
+            <h1>Verifique seu email</h1>
+            <p>Enviamos um código de 6 dígitos para:</p>
+            <p class="email-display" id="email-display"></p>
+            
+            <form id="code-form">
+                <div class="code-inputs">
+                    <input type="text" maxlength="1" class="code-input" data-index="0">
+                    <input type="text" maxlength="1" class="code-input" data-index="1">
+                    <input type="text" maxlength="1" class="code-input" data-index="2">
+                    <input type="text" maxlength="1" class="code-input" data-index="3">
+                    <input type="text" maxlength="1" class="code-input" data-index="4">
+                    <input type="text" maxlength="1" class="code-input" data-index="5">
+                </div>
+                <button type="submit" id="verify-code-btn">
+                    Verificar código
+                </button>
+            </form>
+            
+            <div class="error" id="code-error"></div>
+            
+            <div class="resend">
+                <button type="button" id="change-email-btn" class="link-btn">
+                    Alterar email
+                </button>
+                <span class="separator">•</span>
+                <button type="button" id="resend-btn" class="link-btn">
+                    Reenviar código
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div id="step-success" class="step">
+            <div class="logo success-icon">✅</div>
+            <h1>Autenticação concluída!</h1>
+            <p>Copie o token abaixo e cole no Claude:</p>
+            
+            <div class="token-container">
+                <div class="token-box" id="token-display"></div>
+                <button type="button" id="copy-token-btn" class="copy-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copiar
+                </button>
+            </div>
+            
+            <div class="instructions">
+                <h3>Próximos passos:</h3>
+                <ol>
+                    <li>Copie o token acima</li>
+                    <li>Volte para o Claude</li>
+                    <li>Cole o token quando solicitado</li>
+                    <li>Pronto! Você poderá usar o MCP</li>
+                </ol>
+            </div>
+            
+            <div class="warning">
+                ⚠️ Este token é pessoal e intransferível. Não compartilhe com ninguém.
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
