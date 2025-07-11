@@ -59,7 +59,6 @@ import { createClient } from "@circleco/headless-server-sdk";
 ```
 
 
-
 ### Create a client
 
 Use the `createClient` function to create a new SDK client instance.
