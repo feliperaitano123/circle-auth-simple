@@ -30,6 +30,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     debugInfo.searchKey = key;
     debugInfo.redisConnected = true;
     
+    // Primeiro, listar todas as chaves para debug
+    const allKeys = await redis.keys('verification:*');
+    debugInfo.allKeys = allKeys;
+    debugInfo.keyCount = allKeys.length;
+    
     const storedData = await redis.get(key);
     debugInfo.foundData = !!storedData;
     
