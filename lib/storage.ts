@@ -5,12 +5,21 @@ let redisClient: any = null;
 
 async function getRedisClient() {
   if (!redisClient) {
+    console.log('🔍 DEBUG - Creating Redis client with URL:', process.env.REDIS_URL ? 'URL present' : 'URL missing');
     redisClient = createClient({
       url: process.env.REDIS_URL
     });
     
-    redisClient.on('error', (err: any) => console.log('Redis Client Error', err));
-    await redisClient.connect();
+    redisClient.on('error', (err: any) => console.log('❌ Redis Client Error', err));
+    redisClient.on('connect', () => console.log('✅ Redis Client Connected'));
+    
+    try {
+      await redisClient.connect();
+      console.log('✅ Redis connection successful');
+    } catch (error) {
+      console.error('❌ Redis connection failed:', error);
+      throw error;
+    }
   }
   return redisClient;
 }
