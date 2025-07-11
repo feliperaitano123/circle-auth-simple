@@ -39,6 +39,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const keys = await client.keys('verification:*');
     debugInfo.verificationKeys = keys.length;
     
+    // Se houver chaves, pegar uma amostra
+    if (keys.length > 0) {
+      const sampleKey = keys[0];
+      const sampleData = await client.get(sampleKey);
+      if (sampleData) {
+        const parsed = JSON.parse(sampleData);
+        debugInfo.sampleVerification = {
+          key: sampleKey,
+          email: parsed.email,
+          hasCode: !!parsed.code,
+          codeLength: parsed.code ? parsed.code.length : 0,
+          attempts: parsed.attempts,
+          expiresAt: new Date(parsed.expiresAt).toISOString()
+        };
+      }
+    }
+    
     await client.disconnect();
     
     res.status(200).json({
