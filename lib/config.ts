@@ -11,7 +11,7 @@ export const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET!,
-    expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as string
+    expiresIn: (process.env.JWT_EXPIRES_IN || '7d').trim() as string
   },
   app: {
     name: process.env.APP_NAME || 'MCP Auth',
