@@ -1,5 +1,19 @@
-import { kv } from '@vercel/kv';
+import { createClient } from 'redis';
 import { config } from './config';
+
+let redisClient: any = null;
+
+async function getRedisClient() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL
+    });
+    
+    redisClient.on('error', (err: any) => console.log('Redis Client Error', err));
+    await redisClient.connect();
+  }
+  return redisClient;
+}
 
 export interface VerificationCode {
   code: string;
@@ -16,6 +30,7 @@ export class Storage {
   }
 
   static async storeCode(email: string, code: string, memberId: number): Promise<void> {
+    const redis = await getRedisClient();
     const key = this.getCodeKey(email);
     const expiresAt = Date.now() + (config.codes.expireMinutes * 60 * 1000);
     
@@ -30,12 +45,13 @@ export class Storage {
 
     // Store with TTL in seconds
     const ttlSeconds = config.codes.expireMinutes * 60;
-    await kv.set(key, JSON.stringify(verificationData), { ex: ttlSeconds });
+    await redis.setEx(key, ttlSeconds, JSON.stringify(verificationData));
   }
 
   static async getCode(email: string): Promise<VerificationCode | null> {
+    const redis = await getRedisClient();
     const key = this.getCodeKey(email);
-    const data = await kv.get(key);
+    const data = await redis.get(key);
     
     if (!data) {
       return null;
@@ -67,16 +83,18 @@ export class Storage {
     }
 
     // Update with remaining TTL
+    const redis = await getRedisClient();
     const remainingTtl = Math.max(0, Math.floor((verificationData.expiresAt - Date.now()) / 1000));
     const key = this.getCodeKey(email);
-    await kv.set(key, JSON.stringify(verificationData), { ex: remainingTtl });
+    await redis.setEx(key, remainingTtl, JSON.stringify(verificationData));
     
     return verificationData.attempts;
   }
 
   static async deleteCode(email: string): Promise<void> {
+    const redis = await getRedisClient();
     const key = this.getCodeKey(email);
-    await kv.del(key);
+    await redis.del(key);
   }
 
   static async isRateLimited(email: string): Promise<boolean> {
