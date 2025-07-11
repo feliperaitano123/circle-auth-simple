@@ -53,19 +53,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     console.log('✅ DEBUG Verify - Code matches! Generating token...');
     await Storage.deleteCode(normalizedEmail);
 
-    const token = generateToken({
-      memberId: storedData.memberId,
-      email: storedData.email,
-      name: 'Member',
-      communityUrl: config.circle.communityUrl
-    });
+    try {
+      const token = generateToken({
+        memberId: storedData.memberId,
+        email: storedData.email,
+        name: 'Member',
+        communityUrl: config.circle.communityUrl
+      });
 
-    console.log('✅ DEBUG Verify - Token generated successfully');
-    res.status(200).json({
-      success: true,
-      token,
-      expiresIn: config.jwt.expiresIn
-    });
+      console.log('✅ DEBUG Verify - Token generated successfully');
+      res.status(200).json({
+        success: true,
+        token,
+        expiresIn: config.jwt.expiresIn
+      });
+    } catch (tokenError) {
+      console.error('❌ DEBUG Verify - Token generation failed:', tokenError);
+      throw tokenError;
+    }
 
   } catch (error: any) {
     console.error('Verify error:', error);
