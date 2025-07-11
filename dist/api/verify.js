@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = handler;
-const codes_1 = require("../lib/codes");
+const storage_1 = require("../lib/storage");
 const tokens_1 = require("../lib/tokens");
 const config_1 = require("../lib/config");
 async function handler(req, res) {
@@ -15,17 +15,33 @@ async function handler(req, res) {
         return;
     }
     try {
-        const codeData = await (0, codes_1.verifyCode)(email.toLowerCase().trim(), code.trim());
-        if (!codeData) {
+        const normalizedEmail = email.toLowerCase().trim();
+        const trimmedCode = code.trim();
+        const storedData = await storage_1.Storage.getCode(normalizedEmail);
+        if (!storedData) {
             res.status(401).json({
                 error: 'Código inválido ou expirado'
             });
             return;
         }
+        if (storedData.code !== trimmedCode) {
+            const attempts = await storage_1.Storage.incrementAttempts(normalizedEmail);
+            if (attempts >= config_1.config.codes.maxAttempts) {
+                res.status(429).json({
+                    error: 'Muitas tentativas incorretas. Solicite um novo código.'
+                });
+                return;
+            }
+            res.status(401).json({
+                error: `Código incorreto. ${config_1.config.codes.maxAttempts - attempts} tentativas restantes.`
+            });
+            return;
+        }
+        await storage_1.Storage.deleteCode(normalizedEmail);
         const token = (0, tokens_1.generateToken)({
-            memberId: codeData.memberId,
-            email: codeData.email,
-            name: codeData.memberName,
+            memberId: storedData.memberId,
+            email: storedData.email,
+            name: 'Member',
             communityUrl: config_1.config.circle.communityUrl
         });
         res.status(200).json({
@@ -36,12 +52,6 @@ async function handler(req, res) {
     }
     catch (error) {
         console.error('Verify error:', error);
-        if (error.message?.includes('bloqueado')) {
-            res.status(429).json({
-                error: error.message
-            });
-            return;
-        }
         res.status(500).json({
             error: 'Erro ao verificar código'
         });

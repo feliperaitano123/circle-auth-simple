@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = handler;
 const circle_1 = require("../lib/circle");
-const codes_1 = require("../lib/codes");
+const storage_1 = require("../lib/storage");
 const email_1 = require("../lib/email");
 async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -21,10 +21,10 @@ async function handler(req, res) {
         return;
     }
     try {
-        const canProceed = await (0, codes_1.checkRateLimit)(normalizedEmail);
-        if (!canProceed) {
+        const isRateLimited = await storage_1.Storage.isRateLimited(normalizedEmail);
+        if (isRateLimited) {
             res.status(429).json({
-                error: 'Muitas tentativas. Tente novamente em 1 hora.'
+                error: 'Muitas tentativas. Tente novamente em 10 minutos.'
             });
             return;
         }
@@ -35,7 +35,8 @@ async function handler(req, res) {
             });
             return;
         }
-        const code = await (0, codes_1.saveCode)(normalizedEmail, member.id, member.name);
+        const code = storage_1.Storage.generateCode();
+        await storage_1.Storage.storeCode(normalizedEmail, code, member.id);
         const emailSent = await (0, email_1.sendVerificationEmail)({
             to: normalizedEmail,
             code,

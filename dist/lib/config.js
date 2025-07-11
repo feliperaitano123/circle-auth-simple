@@ -21,6 +21,10 @@ exports.config = {
         name: process.env.APP_NAME || 'MCP Auth',
         url: process.env.APP_URL || 'http://localhost:3000'
     },
+    kv: {
+        url: process.env.KV_URL,
+        token: process.env.KV_REST_API_TOKEN
+    },
     codes: {
         length: 6,
         expireMinutes: 10,

@@ -15,10 +15,6 @@ export class Storage {
     return `verification:${email}`;
   }
 
-  private static getAttemptsKey(email: string): string {
-    return `attempts:${email}`;
-  }
-
   static async storeCode(email: string, code: string, memberId: number): Promise<void> {
     const key = this.getCodeKey(email);
     const expiresAt = Date.now() + (config.codes.expireMinutes * 60 * 1000);
