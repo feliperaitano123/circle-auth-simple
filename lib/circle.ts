@@ -12,10 +12,15 @@ export async function verifyCircleMember(email: string): Promise<CircleMember | 
   try {
     // Clean the token to remove any invalid characters
     const cleanToken = config.circle.apiToken.trim().replace(/[\r\n\t]/g, '');
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    console.log('Verifying member:', normalizedEmail);
+    console.log('API URL:', `${config.circle.apiUrl}/api/v1/headless/auth_token`);
+    console.log('Community URL:', config.circle.communityUrl);
     
     const response = await axios.post(
       `${config.circle.apiUrl}/api/v1/headless/auth_token`,
-      { email: email.toLowerCase().trim() },
+      { email: normalizedEmail },
       {
         headers: {
           'Authorization': `Bearer ${cleanToken}`,
@@ -23,6 +28,9 @@ export async function verifyCircleMember(email: string): Promise<CircleMember | 
         }
       }
     );
+    
+    console.log('Auth response status:', response.status);
+    console.log('Auth response data:', JSON.stringify(response.data, null, 2));
 
     if (!response.data?.access_token) {
       return null;
