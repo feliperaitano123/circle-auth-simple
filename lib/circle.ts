@@ -10,12 +10,15 @@ interface CircleMember {
 
 export async function verifyCircleMember(email: string): Promise<CircleMember | null> {
   try {
+    // Clean the token to remove any invalid characters
+    const cleanToken = config.circle.apiToken.trim().replace(/[\r\n\t]/g, '');
+    
     const response = await axios.post(
       `${config.circle.apiUrl}/api/v1/headless/auth_token`,
       { email: email.toLowerCase().trim() },
       {
         headers: {
-          'Authorization': `Bearer ${config.circle.apiToken}`,
+          'Authorization': `Bearer ${cleanToken}`,
           'Content-Type': 'application/json'
         }
       }
@@ -46,8 +49,16 @@ export async function verifyCircleMember(email: string): Promise<CircleMember | 
     }
 
     return null;
-  } catch (error) {
-    console.error('Circle API error:', error);
+  } catch (error: any) {
+    console.error('Circle API error:', error.message);
+    console.error('Token length:', config.circle.apiToken?.length);
+    console.error('Token preview:', config.circle.apiToken?.substring(0, 10) + '...');
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+    
     return null;
   }
 }
