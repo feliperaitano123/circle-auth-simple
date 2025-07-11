@@ -11,7 +11,7 @@ interface EmailOptions {
 
 export async function sendVerificationEmail({ to, code, name }: EmailOptions): Promise<boolean> {
   try {
-    const subject = `${code} - Seu código de verificação`;
+    const subject = `${code} - Acesso AI Builders MCP`;
     
     const html = `
       <!DOCTYPE html>
@@ -83,12 +83,12 @@ export async function sendVerificationEmail({ to, code, name }: EmailOptions): P
         <div class="container">
           <div class="header">
             <div class="logo">🔐</div>
-            <h1>Código de Verificação</h1>
+            <h1>AI Builders - Acesso MCP</h1>
           </div>
           
           <p>Olá ${name},</p>
           
-          <p>Você solicitou acesso ao ${config.app.name}. Use o código abaixo para completar sua autenticação:</p>
+          <p>Você solicitou acesso aos MCPs exclusivos da comunidade AI Builders. Use o código abaixo para completar sua autenticação:</p>
           
           <div class="code-box">
             <div class="code">${code}</div>
@@ -99,13 +99,13 @@ export async function sendVerificationEmail({ to, code, name }: EmailOptions): P
           </div>
           
           <div class="warning">
-            ⚠️ <strong>Importante:</strong> Não compartilhe este código com ninguém. 
-            Nossa equipe nunca pedirá seu código de verificação.
+            🔐 <strong>Importante:</strong> Não compartilhe este código com ninguém. 
+            A equipe da AI Builders nunca pedirá seu código de verificação.
           </div>
           
           <div class="footer">
-            <p>Se você não solicitou este código, ignore este email.</p>
-            <p>${config.email.fromName}</p>
+            <p>Se você não solicitou acesso aos MCPs, ignore este email.</p>
+            <p>Comunidade AI Builders</p>
           </div>
         </div>
       </body>
@@ -115,13 +115,13 @@ export async function sendVerificationEmail({ to, code, name }: EmailOptions): P
     const text = `
 Olá ${name},
 
-Seu código de verificação é: ${code}
+Seu código de acesso aos MCPs da AI Builders é: ${code}
 
 Este código expira em ${config.codes.expireMinutes} minutos.
 
-Se você não solicitou este código, ignore este email.
+Se você não solicitou este acesso, ignore este email.
 
-${config.email.fromName}
+Comunidade AI Builders
     `;
 
     const result = await resend.emails.send({

@@ -6,7 +6,7 @@ const config_1 = require("./config");
 const resend = new resend_1.Resend(config_1.config.email.apiKey);
 async function sendVerificationEmail({ to, code, name }) {
     try {
-        const subject = `${code} - Seu código de verificação`;
+        const subject = `${code} - Acesso AI Builders MCP`;
         const html = `
       <!DOCTYPE html>
       <html>
@@ -77,12 +77,12 @@ async function sendVerificationEmail({ to, code, name }) {
         <div class="container">
           <div class="header">
             <div class="logo">🔐</div>
-            <h1>Código de Verificação</h1>
+            <h1>AI Builders - Acesso MCP</h1>
           </div>
           
           <p>Olá ${name},</p>
           
-          <p>Você solicitou acesso ao ${config_1.config.app.name}. Use o código abaixo para completar sua autenticação:</p>
+          <p>Você solicitou acesso aos MCPs exclusivos da comunidade AI Builders. Use o código abaixo para completar sua autenticação:</p>
           
           <div class="code-box">
             <div class="code">${code}</div>
@@ -93,13 +93,13 @@ async function sendVerificationEmail({ to, code, name }) {
           </div>
           
           <div class="warning">
-            ⚠️ <strong>Importante:</strong> Não compartilhe este código com ninguém. 
-            Nossa equipe nunca pedirá seu código de verificação.
+            🔐 <strong>Importante:</strong> Não compartilhe este código com ninguém. 
+            A equipe da AI Builders nunca pedirá seu código de verificação.
           </div>
           
           <div class="footer">
-            <p>Se você não solicitou este código, ignore este email.</p>
-            <p>${config_1.config.email.fromName}</p>
+            <p>Se você não solicitou acesso aos MCPs, ignore este email.</p>
+            <p>Comunidade AI Builders</p>
           </div>
         </div>
       </body>
@@ -108,13 +108,13 @@ async function sendVerificationEmail({ to, code, name }) {
         const text = `
 Olá ${name},
 
-Seu código de verificação é: ${code}
+Seu código de acesso aos MCPs da AI Builders é: ${code}
 
 Este código expira em ${config_1.config.codes.expireMinutes} minutos.
 
-Se você não solicitou este código, ignore este email.
+Se você não solicitou este acesso, ignore este email.
 
-${config_1.config.email.fromName}
+Comunidade AI Builders
     `;
         const result = await resend.emails.send({
             from: `${config_1.config.email.fromName} <${config_1.config.email.fromEmail}>`,

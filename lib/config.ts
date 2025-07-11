@@ -14,7 +14,7 @@ export const config = {
     expiresIn: (process.env.JWT_EXPIRES_IN || '7d').trim() as string
   },
   app: {
-    name: process.env.APP_NAME || 'MCP Auth',
+    name: process.env.APP_NAME || 'AI Builders MCP Access',
     url: process.env.APP_URL || 'http://localhost:3000'
   },
   codes: {
