@@ -10,10 +10,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="m12 1 0 2"></path>
+            <path d="m12 21 0 2"></path>
+            <path d="m4.22 4.22 1.42 1.42"></path>
+            <path d="m18.36 18.36 1.42 1.42"></path>
+            <path d="m1 12 2 0"></path>
+            <path d="m21 12 2 0"></path>
+            <path d="m4.22 19.78 1.42-1.42"></path>
+            <path d="m18.36 5.64 1.42-1.42"></path>
+        </svg>
+        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
     <div class="container">
         <!-- Step 1: Email -->
         <div id="step-email" class="step active">
-            <div class="logo">🔐</div>
+            <div class="logo">
+                <img src="Logo Icon Main.png" alt="AI Builders" class="logo-img">
+            </div>
             <h1>AI Builders</h1>
             <p>Acesse os MCPs exclusivos da nossa comunidade</p>
             
@@ -35,7 +55,9 @@
 
         <!-- Step 2: Code -->
         <div id="step-code" class="step">
-            <div class="logo">📧</div>
+            <div class="logo">
+                <img src="Logo Icon Main.png" alt="AI Builders" class="logo-img">
+            </div>
             <h1>Verifique seu email</h1>
             <p>Enviamos um código de verificação para:</p>
             <p class="email-display" id="email-display"></p>
@@ -69,7 +91,10 @@
 
         <!-- Step 3: Success -->
         <div id="step-success" class="step">
-            <div class="logo success-icon">✅</div>
+            <div class="logo success-icon">
+                <img src="Logo Icon Main.png" alt="AI Builders" class="logo-img">
+                <div class="success-checkmark">✅</div>
+            </div>
             <h1>Acesso liberado!</h1>
             <p>Copie seu token de acesso aos MCPs da AI Builders:</p>
             

@@ -22,7 +22,8 @@ const buttons = {
     verifyCode: document.getElementById('verify-code-btn'),
     changeEmail: document.getElementById('change-email-btn'),
     resend: document.getElementById('resend-btn'),
-    copyToken: document.getElementById('copy-token-btn')
+    copyToken: document.getElementById('copy-token-btn'),
+    themeToggle: document.getElementById('theme-toggle')
 };
 
 const displays = {
@@ -253,6 +254,39 @@ buttons.copyToken.addEventListener('click', async () => {
         console.error('Failed to copy:', error);
     }
 });
+
+// Theme toggle functionality
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateLogos(isDark);
+}
+
+function updateLogos(isDark) {
+    const logoImgs = document.querySelectorAll('.logo-img');
+    const logoSrc = isDark ? 'Logo Icon White.png' : 'Logo Icon Main.png';
+    
+    logoImgs.forEach(img => {
+        img.src = logoSrc;
+    });
+}
+
+buttons.themeToggle.addEventListener('click', toggleTheme);
+
+// Initialize theme
+initTheme();
+// Update logos for initial theme
+updateLogos(document.documentElement.classList.contains('dark'));
 
 setupCodeInputs();
 inputs.email.focus();
